@@ -1,4 +1,5 @@
 import { useState } from "react";
+import emailjs from "@emailjs/browser";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -6,15 +7,35 @@ const Contact = () => {
     email: "",
     message: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Thank you, ${formData.name}! Message sent successfully.`);
-    setFormData({ name: "", email: "", message: "" });
+    setLoading(true);
+    setSuccess("");
+
+    try {
+      const serviceID = "service_4fvd2sk";
+      const templateID = "template_qi5tc3p";
+      const publicKey = "i2O9txibTIuuZf6pg";
+
+      await emailjs.send(serviceID, templateID, formData, publicKey);
+
+      setSuccess("Message sent successfully!");
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error(error);
+      setSuccess("Failed to send message. Try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,12 +76,16 @@ const Contact = () => {
             required
             className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
           ></textarea>
+
           <button
             type="submit"
-            className="bg-blue-600 text-white font-semibold rounded-full py-3 hover:bg-blue-700 transition shadow-lg"
+            disabled={loading}
+            className="bg-blue-600 text-white font-semibold rounded-full py-3 hover:bg-blue-700 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Send Message
+            {loading ? "Sending..." : "Send Message"}
           </button>
+
+          {success && <p className="mt-4 text-center text-green-600">{success}</p>}
         </form>
       </div>
     </section>

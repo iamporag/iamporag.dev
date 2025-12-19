@@ -11,28 +11,23 @@ const navItems = [
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [active, setActive] = useState("Home");
-  const [isDark, setIsDark] = useState(false); // dark theme for gradient section
+  const [isDark, setIsDark] = useState(true);
 
-  // Scroll listener
+  // Scroll active section
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPos = window.scrollY + 100;
+      const scrollPos = window.scrollY + 120;
 
       navItems.forEach((item) => {
         const section = document.querySelector(item.href);
-        if (section) {
-          const top = section.getBoundingClientRect().top + window.scrollY;
-          const bottom = top + section.clientHeight;
-          if (scrollPos >= top && scrollPos < bottom) {
-            setActive(item.name);
+        if (!section) return;
 
-            // Set dark theme for Contact section
-            if (item.name === "Home" || item.name === "Contact") {
-              setIsDark(true);
-            } else {
-              setIsDark(false);
-            }
-          }
+        const top = section.getBoundingClientRect().top + window.scrollY;
+        const bottom = top + section.clientHeight;
+
+        if (scrollPos >= top && scrollPos < bottom) {
+          setActive(item.name);
+          setIsDark(item.name === "Home" || item.name === "Contact");
         }
       });
     };
@@ -41,91 +36,110 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Navbar colors based on section
-  const navBg = isDark ? "bg-black/40 backdrop-blur-md" : "bg-white/80 backdrop-blur-md";
+  const navBg = isDark
+    ? "bg-black/40 backdrop-blur-md"
+    : "bg-white/80 backdrop-blur-md";
+
   const navText = isDark ? "text-white" : "text-slate-700";
   const underlineColor = isDark ? "bg-white" : "bg-blue-600";
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 backdrop-blur-md ${navBg}`}>
+    <nav className="fixed top-0 left-0 w-full z-50">
+      {/* ================= MOBILE TOP BAR ================= */}
+      <div className="md:hidden flex items-center justify-between px-5 py-4 bg-black/40 backdrop-blur-md">
+        <h1 className="text-xl font-extrabold text-white">iamporag</h1>
 
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        {/* Logo */}
-        <h1 className={`text-2xl font-extrabold ${isDark ? "text-white" : "text-blue-600"}`}>iamporag</h1>
-
-        {/* Desktop Menu */}
-        <ul className="hidden md:flex items-center gap-10">
-          {navItems.map((item) => (
-            <li key={item.name} className="relative">
-              <a
-                href={item.href}
-                className={`
-                  text-[15px] font-medium tracking-wide transition-colors duration-200
-                  ${active === item.name ? `${navText}` : `hover:text-blue-600 ${navText}`}
-                `}
-              >
-                {item.name}
-                <span
-                  className={`
-                    absolute left-0 -bottom-1 h-[2px] transition-all duration-300
-                    ${active === item.name ? `w-full ${underlineColor}` : "w-0"}
-                  `}
-                ></span>
-              </a>
-            </li>
-          ))}
-
-          {/* CTA */}
-          <li className="ml-6">
-            <a
-              href="#contact"
-              className={`
-                inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold rounded-full shadow-sm transition-all duration-200
-                ${isDark ? "bg-white text-black hover:bg-gray-200 hover:text-black" : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md"}
-              `}
-            >
-              Hire Me
-            </a>
-          </li>
-        </ul>
-
-        {/* Mobile Hamburger */}
-        <button className="md:hidden" onClick={() => setIsOpen(true)}>
-          <FaBars size={24} className={`${isDark ? "text-white" : "text-gray-800"}`} />
+        <button
+          onClick={() => setIsOpen(true)}
+          className="p-2 rounded-lg hover:bg-white/10"
+        >
+          <FaBars size={22} className="text-white" />
         </button>
       </div>
 
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className={`md:hidden fixed inset-0 z-50 flex flex-col items-center justify-center gap-10 ${isDark ? "bg-black/90" : "bg-white/90"}`}>
-          <button
-            className="absolute top-6 right-6"
-            onClick={() => setIsOpen(false)}
+      {/* ================= DESKTOP NAVBAR ================= */}
+      <div className={`hidden md:block ${navBg}`}>
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          {/* Logo */}
+          <h1
+            className={`text-2xl font-extrabold ${isDark ? "text-white" : "text-blue-600"
+              }`}
           >
-            <FaTimes size={28} className={`${isDark ? "text-white" : "text-gray-800"}`} />
-          </button>
+            iamporag
+          </h1>
 
-          {navItems.map((item) => (
+          {/* Menu */}
+          <ul className="flex items-center gap-10">
+            {navItems.map((item) => (
+              <li key={item.name} className="relative">
+                <a
+                  href={item.href}
+                  className={`text-[15px] font-medium transition ${active === item.name
+                      ? navText
+                      : `${navText} hover:text-blue-600`
+                    }`}
+                >
+                  {item.name}
+                  <span
+                    className={`absolute left-0 -bottom-1 h-[2px] transition-all duration-300 ${active === item.name
+                        ? `w-full ${underlineColor}`
+                        : "w-0"
+                      }`}
+                  />
+                </a>
+              </li>
+            ))}
+
             <a
-              key={item.name}
-              href={item.href}
-              onClick={() => {
-                setIsOpen(false);
-                setActive(item.name);
-              }}
-              className={`text-2xl font-semibold transition-colors duration-200 ${active === item.name ? (isDark ? "text-white" : "text-blue-600") : (isDark ? "text-white/80 hover:text-white" : "text-gray-800 hover:text-blue-600")}`}
+              href="#contact"
+              className={`ml-6 px-6 py-2.5 rounded-full font-semibold transition ${isDark
+                  ? "bg-white text-black hover:bg-gray-200"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
             >
-              {item.name}
+              Hire Me
             </a>
-          ))}
+          </ul>
+        </div>
+      </div>
 
-          <a
-            href="#contact"
-            onClick={() => setIsOpen(false)}
-            className={`px-8 py-3 rounded-full font-semibold transition-colors duration-200 ${isDark ? "bg-white text-black hover:bg-gray-200 hover:text-black" : "bg-blue-600 text-white hover:bg-blue-700"}`}
-          >
-            Hire Me
-          </a>
+      {/* ================= MOBILE MENU (BOTTOM SHEET) ================= */}
+      {isOpen && (
+        <div className="md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+          <div className="absolute bottom-0 left-0 w-full bg-black rounded-t-3xl px-6 pt-8 pb-10 flex flex-col gap-6">
+            {/* Close */}
+            <button
+              className="absolute top-4 right-6"
+              onClick={() => setIsOpen(false)}
+            >
+              <FaTimes size={26} className="text-white" />
+            </button>
+
+            {navItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                onClick={() => {
+                  setIsOpen(false);
+                  setActive(item.name);
+                }}
+                className={`text-lg font-semibold py-3 px-4 rounded-xl transition ${active === item.name
+                    ? "bg-white/10 text-white"
+                    : "text-white/80 hover:bg-white/10"
+                  }`}
+              >
+                {item.name}
+              </a>
+            ))}
+
+            <a
+              href="#contact"
+              onClick={() => setIsOpen(false)}
+              className="mt-4 text-center py-3 rounded-xl font-semibold bg-white text-black"
+            >
+              Hire Me
+            </a>
+          </div>
         </div>
       )}
     </nav>
