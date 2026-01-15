@@ -98,7 +98,6 @@ useEffect(() => {
                       </span>
                     ))}
                   </div>
-
                   <a
                     href={p.link}
                     className="inline-flex items-center gap-2 text-blue-600 font-semibold group-hover:gap-3 transition-all"
