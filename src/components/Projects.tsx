@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs, query,} from "firebase/firestore";
+import { collection, getDocs, orderBy, query,} from "firebase/firestore";
 import { db } from "../firebase";
 
 interface Project {
@@ -15,25 +15,29 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const projectsRef = collection(db, "projects");
-        const q = query(projectsRef); // যদি সব ডকুমেন্ট আনতে চাও
-        const snapshot = await getDocs(q);
-        const projectsData: Project[] = snapshot.docs.map(
-          (doc) => doc.data() as Project
-        );
-        setProjects(projectsData);
-      } catch (error) {
-        console.error("Error fetching projects: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const fetchProjects = async () => {
+    try {
+      const projectsRef = collection(db, "projects");
+      const q = query(projectsRef, orderBy("createdAt", "desc"));
 
-    fetchProjects();
-  }, []);
+      const snapshot = await getDocs(q);
+
+      const projectsData: Project[] = snapshot.docs.map(
+        (doc) => doc.data() as Project
+      );
+
+      setProjects(projectsData);
+    } catch (error) {
+      console.error("Error fetching projects: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProjects();
+}, []);
+
 
   const displayedProjects = showAll ? projects : projects.slice(0, 3);
 
